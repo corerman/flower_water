@@ -1,5 +1,10 @@
-#define WetPoint A1
-#define jidianqi 13
+/*    花卉自动浇水系统
+ * 1.基础的土壤湿度检测与浇水
+ * 2.根据土壤湿度进行分级分量浇水
+ * 3.根据土壤渗透速度智能等待时间
+ */
+#define WetPoint A1   //湿度传感器连接口
+#define jidianqi 13  //继电器连接口
 
 
 //设置每个数码管的灯管控制
@@ -16,7 +21,7 @@ int d3 = 10;
 int d2 = 11;
 int d1 = 12;
 
- int qian,bai,shi,ge;
+ int qian,bai,shi,ge;  //定义湿度的四位数字，用来拆分
 
 //定义湿度上限
 int wetTopLevel=850;  //湿度的上限，这里的上限代表很干燥
