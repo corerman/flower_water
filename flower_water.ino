@@ -129,16 +129,15 @@ void loop() {
             {
                digitalWrite(jidianqi,HIGH);  //禁止浇水      
                currentCount=2;  //重置当前计数器
-               count_top=countTop_bak+((stepOfWaterDelay*60*1000)/everyLoopTime);              
+               count_top=count_top+((stepOfWaterDelay*60*1000)/everyLoopTime);   //修改count_top值，每次递加一分钟   修复BUG       
             }
-              else
-              {
-                stepAddWaterDelayCount=0;
-                count_top=countTop_bak;
+            else
+            {
+              //重置操作
+                stepAddWaterDelayCount=0; 
+                count_top=countTop_bak; //重置count_top上限值
                 currentCount=2;
-                }
-
-          
+             }
           }   
   }
   //delay(commonDelay);  //公共等待时间，目的是用于凑整调优系统运行时间，但是如果开启此处使用会导致数码管显示的视觉异常【数码管会不停闪烁】
@@ -293,8 +292,7 @@ void divNumAndLight(int num,int delaytime){
     }   
   }
 
-
-  void clearLEDs()  //清屏
+void clearLEDs()  //清屏
 {
   digitalWrite(a, LOW);
   digitalWrite(b, HIGH);
@@ -328,5 +326,4 @@ void giveWaterDelay(int wetNum,int wetTopLevel,int wetLowLevel){
           delay(wetTimeLevel5);
         }
    }
-  
 }
