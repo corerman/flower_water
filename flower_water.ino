@@ -264,6 +264,7 @@ void loop() {
     divNumAndLight(num,showNumTime); //拆分数字的每一位，并显示湿度数值到四位数码管
     if(firstFlag==1)  //如果当前是arduino首次启动的状态 
     {
+        digitalWrite(jidianqi,HIGH);  //初始化禁用浇水
         firstFlag=2; 
         loopCheckTime=loopCheckTime*1000; //把检测等待时间转换为毫秒单位 只需要一次计算即可 所以放在此处
         
