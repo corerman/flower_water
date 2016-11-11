@@ -21,13 +21,14 @@ int d3 = 10;
 int d2 = 11;
 int d1 = 12;
 
- int qian,bai,shi,ge;  //定义湿度的四位数字，用来拆分
-
-//定义湿度上限
-int wetTopLevel=850;  //湿度的上限，这里的上限代表很干燥
-int wetLowLevel=650; //湿度的下限
-int waterTime=5000; //浇水的时间
-int num;  //实时湿度读取变量
+ int qian,bai,shi,ge;  //定义湿度的四位数字
+ int num;  //存储湿度变量
+ 
+//定义湿度范围界限值
+int wetTopLevel=850;  //湿度的上限，这里的上限代表很干燥【不符合生存条件】
+int wetLowLevel=650; //湿度的下限，这里的下限代表很潮湿【不符合生存条件】
+int waterTime=5000; //浇水的时间的最大值
+int wetTimeLevel1,wetTimeLevel2,wetTimeLevel3,wetTimeLevel4,wetTimeLevel5;
 
 //设计loopCheckTime everyLoopTime commonDelay 和 showNumTime是考虑避免多线程 ，原理是 总的监测时间除以一次LOOP的大概总时间 赋值为count_top ，每次LOOP循环则把currentCount+1，如果currentCount大于count_top 则执行湿度监测
 unsigned long loopCheckTime=1*60;//这是1分钟的监测时间  
@@ -87,6 +88,12 @@ void loop() {
    everyLoopTime=commonDelay+showNumTime*4; //算出每次系统循环所消耗的总时间 单位为毫秒
    count_top=loopCheckTime/everyLoopTime; //算出循环计数的上限值   
    countTop_bak=count_top;  //count_top初始准确值备份
+
+    wetTimeLevel1=waterTime/5;   //第一等级浇水时间   最短浇水时间
+    wetTimeLevel2=waterTime*2/5; //第二等级浇水时间
+    wetTimeLevel3=waterTime*3/5; //第三等级浇水时间
+    wetTimeLevel4=waterTime*4/5; //第四等级浇水时间
+    wetTimeLevel5=waterTime; //第三等级浇水时间
   }
 
 
@@ -303,19 +310,19 @@ void giveWaterDelay(int wetNum,int wetTopLevel,int wetLowLevel){
     if(wetSub<=50)
     {
      // Serial.println("water 1");
-      delay(1000); 
+      delay(wetTimeLevel1); 
      }else if(wetSub<=100)
      {
       //Serial.println("water 2");
-      delay(2000);
+      delay(wetTimeLevel2);
       }else if(wetSub<=150)
       {
       //  Serial.println("water 3");
-        delay(3000);
+        delay(wetTimeLevel3);
        }
         else{
          // Serial.println("water 4");
-          delay(5000);
+          delay(wetTimeLevel5);
         }
    }
   
