@@ -167,32 +167,32 @@ void pickDigit(int x)  //定义pickDigit(x),其作用是指定使用哪个数码
 }
 
 void divNumAndLight(int num,int delaytime){
-
     qian=num/1000;
     bai=(num/100)%10;
     shi=(num%100)/10;
     ge=num%10;
     ge=0;
-      clearLEDs();
-      pickDigit(1);
-      showNum(qian);
-      delayMicroseconds(delaytime*1000); //此处的单位是微秒 时间很短产生视觉停留
+    
+    clearLEDs();
+    pickDigit(1);
+    showNum(qian);
+    delayMicroseconds(delaytime*1000); //此处的单位是微秒 时间很短产生视觉停留
+    
+    clearLEDs();
+    pickDigit(2);
+    showNum(bai);
+    delayMicroseconds(delaytime*1000);
 
-      clearLEDs();
-      pickDigit(2);
-      showNum(bai);
-      delayMicroseconds(delaytime*1000);
+    clearLEDs();
+    pickDigit(3);
+    showNum(shi);
+    delayMicroseconds(delaytime*1000);
 
-      clearLEDs();
-      pickDigit(3);
-      showNum(shi);
-      delayMicroseconds(delaytime*1000);
-
-      clearLEDs();
-      pickDigit(4);
-      showNum(ge);
-      delayMicroseconds(delaytime*1000);
-  }
+    clearLEDs();
+    pickDigit(4);
+    showNum(ge);
+    delayMicroseconds(delaytime*1000);
+}
 
 
   void showNum(int num)
