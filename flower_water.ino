@@ -50,9 +50,20 @@ void setup() {
 
 
 int firstFlag=1; //设置firstFlag 变量 是为了标志系统的的初始化 
+long countTop_bak=0;
+
+long stepOfWaterDelay=1; //渗水等待递加时间，每次递加为1分钟
+long stepAddWaterDelayCount=0; //渗水等待递加次数统计，最大为10次
+
 void loop() {
+
+
+   num=analogRead(WetPoint); //读取湿度的数值
+   divNumAndLight(num,showNumTime); //拆分数字的每一位，并显示湿度数值到四位数码管
+  
   if(firstFlag==1)  //如果当前是arduino首次启动的状态 
   {
+    digitalWrite(jidianqi,HIGH);//停止抽水
     if(num<=wetLowLevel)  //如果湿度已经低于湿度下限 就立即停止抽水
     {
         //停止抽水
@@ -60,35 +71,60 @@ void loop() {
         //响蜂鸣器
     }
    loopCheckTime=loopCheckTime*1000; //把检测等待时间转换为毫秒单位 只需要一次计算即可 所以放在此处
-   firstFlag++; 
-  }
-   everyLoopTime=commonDelay+showNumTime*4; //算出每次系统循环所消耗的总时间 单位为毫秒
-   count_top=loopCheckTime/everyLoopTime; //算出循环计数的上限值
-   num=analogRead(WetPoint); //读取湿度的数值
-   divNumAndLight(num,showNumTime); //拆分数字的每一位，并显示湿度数值到四位数码管
- 
-   currentCount=currentCount+1;
-    if(num>=wetTopLevel && currentCount==1) //如果湿度数值高于湿度上限 而且是第一次 就立即抽5秒水
+   firstFlag=2; 
+
+    if(num>=wetTopLevel) //如果湿度数值高于湿度上限 而且是第一次 就立即抽5秒水
     {
         digitalWrite(jidianqi,LOW); //抽水
-        delay(waterTime);
+        giveWaterDelay(num,wetTopLevel,wetLowLevel);
         digitalWrite(jidianqi,HIGH);//停止抽水
     }
-    if(currentCount>=count_top) //现在系统已经循环超过了浇水监测时间【默认是30分钟】
+   everyLoopTime=commonDelay+showNumTime*4; //算出每次系统循环所消耗的总时间 单位为毫秒
+   count_top=loopCheckTime/everyLoopTime; //算出循环计数的上限值   
+   countTop_bak=count_top;  //count_top初始准确值备份
+  }
+
+
+   currentCount++;
+
+    if(currentCount>=count_top) //现在系统已经循环超过了浇水监测时间【默认是1分钟】
     {
       if(num<=wetLowLevel)  //如果湿度已经低于湿度下限 就立即停止抽水
       {
           //停止抽水
           digitalWrite(jidianqi,HIGH);  
           //响蜂鸣器
-          currentCount=count_top+10;//此处的计算是为了避免【高速的loop循环导致无休止的递加从而可能引发的溢出异常】
+          currentCount=2;//此处的计算是为了避免【高速的loop循环导致无休止的递加从而可能引发的溢出异常】
+          stepAddWaterDelayCount=0;
+          count_top=countTop_bak;
       }else if(num>=wetTopLevel) //如果湿度已经超过湿度上限
        {
           digitalWrite(jidianqi,LOW); //抽水
-          delay(waterTime);
+          giveWaterDelay(num,wetTopLevel,wetLowLevel);
           digitalWrite(jidianqi,HIGH);//停止抽水
           currentCount=2; //赋值为1就避免了第二个if 避免两次浇水
-        }   
+          stepAddWaterDelayCount=0;
+          count_top=countTop_bak;
+        }
+        else //湿度在合适的区间内 延长渗水等待时间等待时间
+        {
+            //停止抽水
+            stepAddWaterDelayCount++;
+            if(stepAddWaterDelayCount<=10)
+            {
+             digitalWrite(jidianqi,HIGH);          
+            currentCount=2; 
+            count_top=countTop_bak+((stepOfWaterDelay*60*1000)/everyLoopTime);             
+              }
+              else
+              {
+                stepAddWaterDelayCount=0;
+                count_top=countTop_bak;
+                currentCount=2;
+                }
+
+          
+          }   
     }
   //delay(commonDelay);  //公共等待时间，目的是用于凑整调优系统运行时间，但是如果开启此处使用会导致数码管显示的视觉异常【数码管会不停闪烁】
 }
@@ -252,4 +288,30 @@ void divNumAndLight(int num,int delaytime){
   digitalWrite(e, HIGH);
   digitalWrite(f, HIGH);
   digitalWrite(g, HIGH);
+}
+
+void giveWaterDelay(int wetNum,int wetTopLevel,int wetLowLevel){
+  //浇水延时函数 此函数默认代表要执行浇水 不同等级的湿度进行不同时间的浇水
+  if(wetNum>wetTopLevel)
+  {
+    int wetSub= wetNum-wetTopLevel;
+    if(wetSub<=50)
+    {
+     // Serial.println("water 1");
+      delay(1000); 
+     }else if(wetSub<=100)
+     {
+      //Serial.println("water 2");
+      delay(2000);
+      }else if(wetSub<=150)
+      {
+      //  Serial.println("water 3");
+        delay(3000);
+       }
+        else{
+         // Serial.println("water 4");
+          delay(5000);
+        }
+   }
+  
 }
